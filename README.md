@@ -10,6 +10,10 @@
 Пример:
 <br/>[Панорама просмотра 1](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer_preview.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/04.01.2026/DSCN0021.JPG)
 <br/>[Панорама просмотра 2](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer_preview.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/04.01.2026/DSCN0054.JPG)
+<br/>[Панорама просмотра 3](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer_preview.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/Tailand_2024/Kata/PIC_20240602_101450.jpg)
+<br/>[Панорама просмотра 4](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer_preview.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/Tailand_2024/Kata/PIC_20240602_101514.jpg)
+<br/>[Панорама просмотра 5](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer_preview.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/Tailand_2024/Kata/PIC_20240602_101517.jpg)
+
 <br/>[Панорама просмотра  с переходами по тосчкам 1](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/04.01.2026/DSCN0021.JPG)
 <br/>[Редактирование точек перехода (двойной клик для добавления точки)](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/edit.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/04.01.2026/DSCN0021.JPG)
 
