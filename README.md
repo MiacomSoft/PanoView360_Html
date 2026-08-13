@@ -14,14 +14,13 @@
 <br/>[Панорама просмотра 4](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer_preview.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/Tailand_2024/Kata/PIC_20240602_101514.jpg)
 <br/>[Панорама просмотра 5](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer_preview.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/Tailand_2024/Kata/PIC_20240602_101517.jpg)
 <br/>[Панорама просмотра 6](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer_preview.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/07.09.2025/PIC_20250907_152549.jpg)
-
+<br/>
 <br/>[Панорама просмотра с переходами по тосчкам 1](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/04.01.2026/DSCN0021.JPG)
 <br/>[Панорама просмотра с переходами по тосчкам 2](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/viewer.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/07.09.2025/PIC_20250907_152549.jpg)
 <br/>[Редактирование точек перехода (двойной клик для добавления точки)](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/edit.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/04.01.2026/DSCN0021.JPG)
-
-
-[Смотреть видео-описание проекта](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/Video/Info.mp4)
-[Смотреть видео-описание проекта Rutube](https://rutube.ru/video/f722a39c59719363964619c3098eb341/)
+<br/>
+<br/>[Смотреть видео-описание проекта](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/Video/Info.mp4)
+<br/>[Смотреть видео-описание проекта Rutube](https://rutube.ru/video/f722a39c59719363964619c3098eb341/)
 
 ## 📖 [О проекте](info.md)
 
