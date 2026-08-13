@@ -21,6 +21,7 @@
 
 
 [Смотреть видео-описание проекта](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/Video/Info.mp4)
+[Смотреть видео-описание проекта Rutube](https://rutube.ru/video/f722a39c59719363964619c3098eb341/)
 
 ## 📖 [О проекте](info.md)
 
