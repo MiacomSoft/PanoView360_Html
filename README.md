@@ -20,7 +20,7 @@
 <br/>[Редактирование точек перехода (двойной клик для добавления точки)](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/edit.html?photo=https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main/img/04.01.2026/DSCN0021.JPG)
 
 
-[Video Info](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/Video/Info.mp4)
+[Смотреть видео-описание проекта](https://raw.githack.com/MiacomSoft/PanoView360_Html/main/Video/Info.mp4)
 
 ## 📖 [О проекте](info.md)
 
