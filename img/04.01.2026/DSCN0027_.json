@@ -1,20 +1,32 @@
-[
-  {
-    "pitch": -10,
-    "yaw": 30,
-    "type": "scene",
-    "text": "Перейти к следующей сцене",
-    "panorama_url": "https://raw.githubusercontent.com/MyasnikovIA/Pano360/main/img/04.01.2026/DSCN0033.JPG",
-    "point_pitch": 0,
-    "point_yaw": 0
-  },
-  {
-    "pitch": 5,
-    "yaw": -45,
-    "type": "info",
-    "text": "Информация о точке",
-    "panorama_url": "https://raw.githubusercontent.com/MyasnikovIA/Pano360/main/img/04.01.2026/DSCN0137.JPG",
-    "point_pitch": 10,
-    "point_yaw": 20
-  }
-]
+{
+  "pitchCam": 0,
+  "yawCam": 0,
+  "hotSpots": [
+    {
+      "id": 1,
+      "name": "Сцена 2",
+      "type": "scene",
+      "text": "Перейти к следующей сцене",
+      "pitch": -10,
+      "yaw": 30,
+      "targetPitch": 0,
+      "targetYaw": 0,
+      "panorama_url": "img/04.01.2026/DSCN0033.JPG",
+      "path": "https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main",
+      "createdAt": "2026-01-12T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Информация",
+      "type": "info",
+      "text": "Информация о точке",
+      "pitch": 5,
+      "yaw": -45,
+      "targetPitch": 10,
+      "targetYaw": 20,
+      "panorama_url": "img/04.01.2026/DSCN0137.JPG",
+      "path": "https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main",
+      "createdAt": "2026-01-12T00:00:00.000Z"
+    }
+  ]
+}
