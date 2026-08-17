@@ -39,6 +39,61 @@
             background: #4CAF50;
             color: white;
         }
+        /* Стили для настроек проекта */
+        .project-settings-group {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            margin-bottom: 15px;
+        }
+        .project-settings-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .project-settings-group .form-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .project-settings-group .form-group-30 {
+            flex: 1 1 30%;
+            min-width: 150px;
+        }
+        .project-settings-group .form-group-30 label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .project-settings-group .form-group-30 select,
+        .project-settings-group .form-group-30 input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn-save-settings {
+            width: 100%;
+        }
+        .main-scene-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        .file-item .is-main {
+            border-left: 3px solid #4CAF50;
+            background: #f0fff0;
+        }
     </style>
 </head>
 <body>
@@ -68,6 +123,37 @@
             <small style="color:#666;display:block;margin-top:4px;">
                 Выберите существующий проект или создайте новый для группировки панорам
             </small>
+        </div>
+
+        <!-- === НАСТРОЙКИ ПРОЕКТА === -->
+        <div id="projectSettingsGroup" class="project-settings-group" style="display:none;">
+            <h4 style="margin-top:0;margin-bottom:10px;">⚙️ Настройки проекта</h4>
+            <div class="form-group">
+                <label for="projectTitle">Название проекта</label>
+                <input type="text" id="projectTitle" placeholder="Название проекта">
+            </div>
+            <div class="form-group">
+                <label for="projectDescription">Описание проекта</label>
+                <textarea id="projectDescription" rows="2" placeholder="Описание проекта"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="projectAuthor">Автор</label>
+                <input type="text" id="projectAuthor" placeholder="Имя автора">
+            </div>
+            <div class="form-row">
+                <div class="form-group-30">
+                    <label for="mainSceneSelect">Главная сцена</label>
+                    <select id="mainSceneSelect">
+                        <option value="">-- Выберите сцену --</option>
+                    </select>
+                    <small style="color:#666;display:block;margin-top:4px;">
+                        Выберите изображение, которое будет загружаться при открытии проекта
+                    </small>
+                </div>
+                <div class="form-group-30">
+                    <button id="saveProjectSettingsBtn" class="btn btn-primary btn-save-settings">💾 Сохранить настройки</button>
+                </div>
+            </div>
         </div>
 
         <!-- Загрузка файлов -->
@@ -178,6 +264,7 @@
             this.rootPath = this.getRootPath();
             this.currentProject = null;
             this.projects = [];
+            this._currentConfig = null;
 
             this.init();
         }
@@ -205,19 +292,21 @@
             const select = document.getElementById('projectSelect');
             if (!select) return;
 
-            // Сохраняем выбранное значение
             const currentValue = select.value;
 
             select.innerHTML = '<option value="">-- Выберите проект --</option>';
 
             this.projects.forEach(project => {
                 const option = document.createElement('option');
-                option.value = project;
-                option.textContent = project;
+                option.value = project.name;
+                option.textContent = project.name + (project.main_scene ? ' ★' : '');
+                if (project.main_scene) {
+                    option.title = 'Главная сцена: ' + project.main_scene;
+                }
                 select.appendChild(option);
             });
 
-            if (currentValue && this.projects.includes(currentValue)) {
+            if (currentValue && this.projects.some(p => p.name === currentValue)) {
                 select.value = currentValue;
             }
         }
@@ -226,6 +315,7 @@
             const select = document.getElementById('projectSelect');
             const createBtn = document.getElementById('createProjectBtn');
             const refreshBtn = document.getElementById('refreshProjectsBtn');
+            const saveSettingsBtn = document.getElementById('saveProjectSettingsBtn');
 
             if (select) {
                 select.addEventListener('change', () => {
@@ -247,6 +337,12 @@
             if (refreshBtn) {
                 refreshBtn.addEventListener('click', () => {
                     this.loadProjects();
+                });
+            }
+
+            if (saveSettingsBtn) {
+                saveSettingsBtn.addEventListener('click', () => {
+                    this.saveProjectSettings();
                 });
             }
         }
@@ -272,7 +368,7 @@
                     }
 
                     // Если есть текущий проект, проверяем его наличие
-                    if (this.currentProject && !this.projects.includes(this.currentProject)) {
+                    if (this.currentProject && !this.projects.some(p => p.name === this.currentProject)) {
                         this.clearProject();
                     }
                 }
@@ -286,7 +382,7 @@
             }
         }
 
-        selectProject(projectName) {
+        async selectProject(projectName) {
             this.currentProject = projectName;
 
             // Обновляем select
@@ -318,6 +414,9 @@
                 window.uploadManager.loadFileList();
             }
 
+            // Показываем настройки проекта
+            this.showProjectSettings(projectName);
+
             console.log('Project selected:', projectName);
         }
 
@@ -338,6 +437,12 @@
             if (window.uploadManager) {
                 window.uploadManager.setProject(null);
             }
+
+            // Скрываем настройки проекта
+            const group = document.getElementById('projectSettingsGroup');
+            if (group) {
+                group.style.display = 'none';
+            }
         }
 
         updatePathFields(projectName) {
@@ -354,13 +459,10 @@
             }
 
             if (photoInput) {
-                // Сохраняем имя файла если есть
                 const currentPhoto = photoInput.value;
                 if (currentPhoto && !currentPhoto.includes('/')) {
-                    // Если только имя файла - добавляем путь проекта
                     photoInput.value = '/' + projectName + '/' + currentPhoto;
                 } else if (currentPhoto) {
-                    // Заменяем имя проекта в пути
                     const parts = currentPhoto.split('/');
                     const filename = parts[parts.length - 1];
                     photoInput.value = '/' + projectName + '/' + filename;
@@ -386,7 +488,7 @@
             const projectName = prompt('Введите имя нового проекта:');
             if (!projectName || projectName.trim() === '') return;
 
-            const cleanName = projectName.trim().replace(/[^a-zA-Z0-9_\-]/g, '_');
+            const cleanName = projectName.trim().replace(/[^a-zA-Z0-9а-яА-Я._\-]/g, '_');
             if (cleanName !== projectName.trim()) {
                 if (!confirm(`Имя проекта будет изменено на: "${cleanName}". Продолжить?`)) {
                     return;
@@ -417,6 +519,149 @@
             } catch (error) {
                 console.error('Error creating project:', error);
                 showToast('❌ Ошибка создания проекта: ' + error.message, 5000);
+            }
+        }
+
+        /**
+         * Загружает конфигурацию проекта
+         */
+        async loadProjectConfig(projectName) {
+            try {
+                const response = await fetch(this.rootPath + '/php/projects_list.php?project=' + encodeURIComponent(projectName));
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки конфигурации проекта');
+                }
+                const data = await response.json();
+                if (data.success) {
+                    return data.config;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error loading project config:', error);
+                return null;
+            }
+        }
+
+        /**
+         * Сохраняет конфигурацию проекта
+         */
+        async saveProjectConfig(projectName, configData) {
+            try {
+                const response = await fetch(this.rootPath + '/php/projects_list.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        project: projectName,
+                        data: configData
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast('✅ Настройки проекта сохранены', 3000);
+                    return data.config;
+                } else {
+                    showToast('❌ Ошибка сохранения: ' + (data.error || 'Неизвестная ошибка'), 5000);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error saving project config:', error);
+                showToast('❌ Ошибка сохранения: ' + error.message, 5000);
+                return null;
+            }
+        }
+
+        /**
+         * Отображает настройки проекта
+         */
+        async showProjectSettings(projectName) {
+            const group = document.getElementById('projectSettingsGroup');
+            if (!group) return;
+
+            group.style.display = 'block';
+
+            // Загружаем конфигурацию
+            const config = await this.loadProjectConfig(projectName);
+            if (!config) return;
+
+            this._currentConfig = config;
+
+            // Заполняем поля
+            document.getElementById('projectTitle').value = config.title || '';
+            document.getElementById('projectDescription').value = config.description || '';
+            document.getElementById('projectAuthor').value = config.author || '';
+
+            // Загружаем список изображений для выбора главной сцены
+            await this.loadMainSceneOptions(projectName, config.main_scene);
+        }
+
+        /**
+         * Загружает список изображений для выбора главной сцены
+         */
+        async loadMainSceneOptions(projectName, currentMain) {
+            const select = document.getElementById('mainSceneSelect');
+            if (!select) return;
+
+            try {
+                const response = await fetch(this.rootPath + '/php/file_list.php?project=' + encodeURIComponent(projectName));
+                const data = await response.json();
+
+                select.innerHTML = '<option value="">-- Без главной сцены --</option>';
+
+                if (data.success && data.files) {
+                    data.files.forEach(file => {
+                        const option = document.createElement('option');
+                        option.value = file.name;
+                        const isMain = file.name === currentMain;
+                        option.textContent = file.name + (isMain ? ' ★' : '');
+                        if (isMain) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    });
+                }
+
+                // Если текущая главная сцена не найдена в списке, но указана - добавляем её
+                if (currentMain && !Array.from(select.options).some(o => o.value === currentMain)) {
+                    const option = document.createElement('option');
+                    option.value = currentMain;
+                    option.textContent = currentMain + ' ★ (не найдена)';
+                    option.selected = true;
+                    select.appendChild(option);
+                }
+            } catch (error) {
+                console.error('Error loading main scene options:', error);
+            }
+        }
+
+        /**
+         * Сохраняет настройки проекта
+         */
+        async saveProjectSettings() {
+            if (!this.currentProject) {
+                showToast('❌ Проект не выбран', 3000);
+                return;
+            }
+
+            const configData = {
+                title: document.getElementById('projectTitle').value.trim(),
+                description: document.getElementById('projectDescription').value.trim(),
+                author: document.getElementById('projectAuthor').value.trim(),
+                main_scene: document.getElementById('mainSceneSelect').value || null
+            };
+
+            const result = await this.saveProjectConfig(this.currentProject, configData);
+            if (result) {
+                // Обновляем информацию о проекте
+                await this.loadProjects();
+                // Обновляем список главных сцен
+                await this.loadMainSceneOptions(this.currentProject, result.main_scene);
+                // Обновляем upload manager
+                if (window.uploadManager) {
+                    window.uploadManager.loadFileList();
+                }
             }
         }
     }
@@ -461,7 +706,6 @@
             const projectName = window.projectManager ? window.projectManager.currentProject : null;
 
             if (pathInput) {
-                // Если проект выбран - формируем путь
                 if (projectName) {
                     const params = new URLSearchParams(window.location.search);
                     const basePath = params.get('path') || window.projectManager?.rootPath || '';
@@ -472,7 +716,6 @@
             }
 
             if (photoInput && projectName) {
-                // Формируем правильный относительный путь: /project_name/filename
                 photoInput.value = '/' + projectName + '/' + file.name;
             } else if (photoInput) {
                 photoInput.value = file.photo || file.name || '';

@@ -19,29 +19,49 @@
     <script src="lib/Pannellum2_5_6/panorama_base.js" defer></script>
     <script src="lib/Pannellum2_5_6/panorama_player.js" defer></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, creating PanoramaPlayer');
             try {
-                window.panoramaPlayer = new PanoramaPlayer('canvas', 'https://raw.githubusercontent.com/MyasnikovIA/Pano360/main/img/Tailand_2024/Phuket/PIC_20240606_110636.jpg');
+                // Получаем параметры из URL
+                const params = new URLSearchParams(window.location.search);
+                const projectName = params.get('project_name');
+                const photo = params.get('photo');
+
+                let initialImage = null;
+
+                // Если указан конкретный фото - используем его
+                if (photo) {
+                    initialImage = photo;
+                }
+                // Если указан только проект - загружаем главную сцену
+                else if (projectName) {
+                    // Получаем конфигурацию проекта
+                    const rootPath = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+                    const response = await fetch(rootPath + '/php/projects_list.php?project=' + encodeURIComponent(projectName));
+                    const data = await response.json();
+
+                    if (data.success && data.config && data.config.main_scene) {
+                        // Формируем путь к главной сцене
+                        initialImage = '/img/' + projectName + '/' + data.config.main_scene;
+                    } else {
+                        // Если главная сцена не задана - получаем список файлов и берем первый
+                        const listResponse = await fetch(rootPath + '/php/file_list.php?project=' + encodeURIComponent(projectName));
+                        const listData = await listResponse.json();
+                        if (listData.success && listData.files && listData.files.length > 0) {
+                            initialImage = '/img/' + projectName + '/' + listData.files[0].name;
+                        }
+                    }
+                }
+
+                window.panoramaPlayer = new PanoramaPlayer('canvas', initialImage);
                 console.log('PanoramaPlayer created successfully');
             } catch(e) {
                 console.error('Error creating PanoramaPlayer:', e);
-                // Показываем ошибку на странице
                 const errorDiv = document.createElement('div');
                 errorDiv.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;background:red;color:white;padding:20px;z-index:99999;font-family:monospace;font-size:14px;';
                 errorDiv.innerHTML = `<strong>Ошибка:</strong> ${e.message}`;
                 document.body.appendChild(errorDiv);
             }
-        });
-
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e);
-            // Показываем ошибку на странице
-            const errorDiv = document.createElement('div');
-            errorDiv.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;background:red;color:white;padding:20px;z-index:99999;font-family:monospace;font-size:14px;';
-            errorDiv.innerHTML = `<strong>Ошибка:</strong> ${e.message}<br><small>${e.filename}:${e.lineno}</small>`;
-            document.body.appendChild(errorDiv);
-            setTimeout(() => errorDiv.remove(), 10000);
         });
     </script>
 </body>
