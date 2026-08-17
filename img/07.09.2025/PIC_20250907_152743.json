@@ -12,7 +12,7 @@
       "targetPitch": -26.615592986301,
       "targetYaw": 174.876704101492,
       "panorama_url": "img/07.09.2025/PIC_20250907_152736.jpg",
-      "path": "https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main",
+      "path": "http://127.0.0.1/PanoView360_Html",
       "createdAt": "2026-01-12T07:55:23.369Z"
     },
     {
@@ -25,7 +25,7 @@
       "targetPitch": -24.670233345349,
       "targetYaw": 139.377653938103,
       "panorama_url": "img/07.09.2025/PIC_20250907_152740.jpg",
-      "path": "https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main",
+      "path": "http://127.0.0.1/PanoView360_Html",
       "createdAt": "2026-01-12T07:56:14.882Z"
     }
   ]

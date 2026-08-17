@@ -188,8 +188,7 @@ html, body {
 }
 
 /* ✅ ИСПРАВЛЕНО: точка перед классом */
-.hotspot-item
-.import-success {
+.hotspot-item .import-success {
     background-color: #d4edda;
     color: #155724;
     padding: 8px;
@@ -279,4 +278,3 @@ html, body {
     color: #666;
     font-size: 12px;
 }
-

@@ -12,7 +12,7 @@
       "targetPitch": 0,
       "targetYaw": 0,
       "panorama_url": "img/07.09.2025/PIC_20250907_152710.jpg",
-      "path": "https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main",
+      "path": "http://127.0.0.1/PanoView360_Html",
       "createdAt": "2026-01-12T08:07:56.799Z"
     },
     {
@@ -25,7 +25,7 @@
       "targetPitch": -11.661272867938,
       "targetYaw": -42.149506791557,
       "panorama_url": "img/07.09.2025/PIC_20250907_152710.jpg",
-      "path": "https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main",
+      "path": "http://127.0.0.1/PanoView360_Html",
       "createdAt": "2026-01-12T08:08:05.062Z"
     },
     {
@@ -38,7 +38,7 @@
       "targetPitch": -25.105002760302,
       "targetYaw": 4.09474312865,
       "panorama_url": "img/07.09.2025/PIC_20250907_152714.jpg",
-      "path": "https://raw.githubusercontent.com/MiacomSoft/PanoView360_Html/main",
+      "path": "http://127.0.0.1/PanoView360_Html",
       "createdAt": "2026-01-12T08:08:25.111Z"
     }
   ]
