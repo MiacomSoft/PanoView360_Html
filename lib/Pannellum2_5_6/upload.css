@@ -104,12 +104,41 @@
     padding: 12px 16px;
     background: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.file-list-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.file-search-input {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 180px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.file-search-input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.file-search-input::placeholder {
+    color: #aaa;
 }
 
 .file-count {
     font-weight: 600;
     color: #333;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 .btn-refresh {
@@ -120,6 +149,7 @@
     cursor: pointer;
     font-size: 13px;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .btn-refresh:hover {
@@ -157,14 +187,18 @@
     border-left: 3px solid #2196F3;
 }
 
-.file-item .file-thumb {
-    width: 50px;
-    height: 50px;
+.file-item .file-icon {
+    width: 40px;
+    height: 40px;
     border-radius: 4px;
-    object-fit: cover;
     margin-right: 12px;
     background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
     flex-shrink: 0;
+    color: #999;
 }
 
 .file-item .file-info {
@@ -179,6 +213,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Подсветка найденного текста */
+.file-item .file-name .highlight {
+    background: #ffeb3b;
+    padding: 0 2px;
+    border-radius: 2px;
 }
 
 .file-item .file-size {
