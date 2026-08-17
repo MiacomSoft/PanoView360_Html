@@ -6,125 +6,496 @@
     <title>Редактор панорамных туров</title>
     <link rel="stylesheet" href="lib/Pannellum2_5_6/edit.css"/>
     <link rel="stylesheet" href="lib/Pannellum2_5_6/pannellum.css"/>
-    <!-- Preload critical resources -->
-    <link rel="preload" href="lib/Pannellum2_5_6/pannellum.js" as="script">
-    <link rel="preload" href="lib/Pannellum2_5_6/libpannellum.js" as="script">
+    <link rel="stylesheet" href="lib/Pannellum2_5_6/upload.css"/>
+    <style>
+        /* Дополнительные стили для выбора проекта */
+        .project-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .project-selector label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .project-selector select {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-width: 150px;
+        }
+        .project-selector .btn {
+            white-space: nowrap;
+        }
+        #projectInfoBadge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #4CAF50;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <!-- Main panorama canvas -->
-    <div id="canvas" role="main" aria-label="Панорамный редактор"></div>
+<!-- Main panorama canvas -->
+<div id="canvas" role="main" aria-label="Панорамный редактор"></div>
 
-    <!-- Modal for hotspot creation -->
-    <div id="hotspotModal" class="modal" style="display:none;" role="dialog" aria-modal="true">
-        <div class="modal-content">
-            <span class="close" aria-label="Закрыть">&times;</span>
-            <h2>Создание точки перехода</h2>
+<!-- Modal for hotspot creation -->
+<div id="hotspotModal" class="modal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal-content">
+        <span class="close" aria-label="Закрыть">&times;</span>
+        <h2>Создание точки перехода</h2>
 
-            <!-- Import success message -->
-            <div id="importSuccess" class="import-success"></div>
+        <!-- Import success message -->
+        <div id="importSuccess" class="import-success"></div>
 
-            <!-- Main form -->
-            <div class="form-group">
-                <label for="hotspotName">Название точки</label>
-                <input type="text" id="hotspotName" placeholder="Введите название" maxlength="100">
+        <!-- === ВЫБОР ПРОЕКТА === -->
+        <div class="form-group">
+            <label>Выбор проекта</label>
+            <div class="project-selector">
+                <select id="projectSelect">
+                    <option value="">-- Выберите проект --</option>
+                </select>
+                <button id="createProjectBtn" class="btn btn-primary">➕ Создать проект</button>
+                <button id="refreshProjectsBtn" class="btn btn-secondary">🔄 Обновить</button>
+                <span id="projectInfoBadge">Проект: не выбран</span>
             </div>
+            <small style="color:#666;display:block;margin-top:4px;">
+                Выберите существующий проект или создайте новый для группировки панорам
+            </small>
+        </div>
 
-            <!-- Path и Photo раздельно -->
-            <div class="form-group">
-                <label for="pathInput">Path (корневой URL)</label>
-                <div class="url-input-group">
-                    <input type="text" id="pathInput" placeholder="http://127.0.0.1/PanoView360_Html">
-                    <button id="pastePathButton" class="btn btn-secondary" title="Вставить из буфера">📋 Вставить</button>
-                </div>
-                <small style="color:#666;display:block;margin-top:4px;">Путь к корневой папке с изображениями</small>
+        <!-- Загрузка файлов -->
+        <div class="form-group">
+            <label>Загрузка файлов в проект</label>
+            <div id="uploadContainer"></div>
+        </div>
+
+        <!-- Main form -->
+        <div class="form-group">
+            <label for="hotspotName">Название точки</label>
+            <input type="text" id="hotspotName" placeholder="Введите название" maxlength="100">
+        </div>
+
+        <!-- Path и Photo -->
+        <div class="form-group">
+            <label for="pathInput">Path (корневой URL)</label>
+            <div class="url-input-group">
+                <input type="text" id="pathInput" placeholder="http://127.0.0.1/PanoView360_Html/img">
+                <button id="pastePathButton" class="btn btn-secondary" title="Вставить из буфера">📋 Вставить</button>
             </div>
+            <small style="color:#666;display:block;margin-top:4px;">
+                Путь к папке img (автоматически формируется при выборе проекта)
+            </small>
+        </div>
 
-            <div class="form-group">
-                <label for="photoInput">Photo (относительный путь)</label>
-                <div class="url-input-group">
-                    <input type="text" id="photoInput" placeholder="img/13.08.2026/PIC_20260813_185852.jpg">
-                    <button id="copyPathButton" class="btn btn-primary" title="Скопировать текущий путь с разделением">📋 Копировать</button>
-                </div>
-                <small style="color:#666;display:block;margin-top:4px;">Относительный путь от корня к изображению</small>
+        <div class="form-group">
+            <label for="photoInput">Photo (относительный путь)</label>
+            <div class="url-input-group">
+                <input type="text" id="photoInput" placeholder="/img/проект/файл.jpg">
+                <button id="copyPathButton" class="btn btn-primary" title="Скопировать текущий путь с разделением">📋 Копировать</button>
             </div>
+            <small style="color:#666;display:block;margin-top:4px;">
+                Относительный путь от корня сайта к изображению
+            </small>
+        </div>
 
-            <!-- Полный URL для информации -->
-            <div class="form-group">
-                <label>Полный URL (генерируется автоматически)</label>
-                <input type="text" id="fullUrlDisplay" readonly style="background:#f5f5f5;color:#333;font-size:12px;">
+        <!-- Полный URL -->
+        <div class="form-group">
+            <label>Полный URL (генерируется автоматически)</label>
+            <input type="text" id="fullUrlDisplay" readonly style="background:#f5f5f5;color:#333;font-size:12px;">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group-30">
+                <label for="hotspotType">Тип</label>
+                <select id="hotspotType">
+                    <option value="scene">Сцена</option>
+                    <option value="info">Информация</option>
+                    <option value="custom">Пользовательский</option>
+                </select>
             </div>
-
-            <div class="form-row">
-                <div class="form-group-30">
-                    <label for="hotspotType">Тип</label>
-                    <select id="hotspotType">
-                        <option value="scene">Сцена</option>
-                        <option value="info">Информация</option>
-                        <option value="custom">Пользовательский</option>
-                    </select>
-                </div>
-                <div class="form-group-30">
-                    <label for="hotspotText">Текст</label>
-                    <input type="text" id="hotspotText" placeholder="Текст подсказки" maxlength="200">
-                </div>
+            <div class="form-group-30">
+                <label for="hotspotText">Текст</label>
+                <input type="text" id="hotspotText" placeholder="Текст подсказки" maxlength="200">
             </div>
+        </div>
 
-            <!-- Preview section -->
-            <div class="form-group-full">
-                <button id="previewButton" class="btn btn-secondary">👁️ Предпросмотр</button>
+        <!-- Preview section -->
+        <div class="form-group-full">
+            <button id="previewButton" class="btn btn-secondary">👁️ Предпросмотр</button>
+        </div>
+
+        <div id="previewContainer" class="preview-container" style="display:none;">
+            <div class="iframe-container">
+                <div id="previewIframeContainer" style="width:100%;height:100%;"></div>
             </div>
-
-            <div id="previewContainer" class="preview-container" style="display:none;">
-                <div class="iframe-container">
-                    <div id="previewIframeContainer" style="width:100%;height:100%;"></div>
-                </div>
-                <div class="preview-coordinates">
-                    <p>Выбранные координаты:</p>
-                    <div id="selectedCoordinates" style="min-height:40px;">
-                        <em>Не выбрано</em>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="modal-actions">
-                <button id="saveHotspotButton" class="btn btn-success">💾 Сохранить</button>
-                <button id="cancelButton" class="btn btn-secondary">❌ Отмена</button>
-                <button id="exportJsonButton" class="btn btn-primary">📤 Экспорт JSON</button>
-                <button id="importJsonButton" class="btn btn-warning">📥 Импорт JSON</button>
-                <input type="file" id="jsonFileInput" class="file-input-hidden" accept=".json">
-            </div>
-
-            <!-- Hotspots list -->
-            <div class="hotspots-list">
-                <h3>Точки перехода</h3>
-                <div id="hotspotsContainer">
-                    <p style="color:#666;font-style:italic;">Нет созданных точек</p>
+            <div class="preview-coordinates">
+                <p>Выбранные координаты:</p>
+                <div id="selectedCoordinates" style="min-height:40px;">
+                    <em>Не выбрано</em>
                 </div>
             </div>
         </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+            <button id="saveHotspotButton" class="btn btn-success">💾 Сохранить</button>
+            <button id="cancelButton" class="btn btn-secondary">❌ Отмена</button>
+            <button id="exportJsonButton" class="btn btn-primary">📤 Экспорт JSON</button>
+            <button id="importJsonButton" class="btn btn-warning">📥 Импорт JSON</button>
+            <input type="file" id="jsonFileInput" class="file-input-hidden" accept=".json">
+        </div>
+
+        <!-- Hotspots list -->
+        <div class="hotspots-list">
+            <h3>Точки перехода</h3>
+            <div id="hotspotsContainer">
+                <p style="color:#666;font-style:italic;">Нет созданных точек</p>
+            </div>
+        </div>
     </div>
+</div>
 
-    <!-- Scripts - loaded with defer for performance -->
-    <script src="lib/Pannellum2_5_6/pannellum.js" defer></script>
-    <script src="lib/Pannellum2_5_6/libpannellum.js" defer></script>
-    <script src="lib/Pannellum2_5_6/panorama_base.js" defer></script>
-    <script src="lib/Pannellum2_5_6/panorama_edit.js" defer></script>
+<!-- Scripts -->
+<script src="lib/Pannellum2_5_6/pannellum.js" defer></script>
+<script src="lib/Pannellum2_5_6/libpannellum.js" defer></script>
+<script src="lib/Pannellum2_5_6/upload.js" defer></script>
+<script src="lib/Pannellum2_5_6/panorama_base.js" defer></script>
+<script src="lib/Pannellum2_5_6/panorama_edit.js" defer></script>
 
-    <!-- Добавляем обработчик ошибок для отладки -->
-    <script>
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e.message, e.filename, e.lineno);
-            const errorDiv = document.createElement('div');
-            errorDiv.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;background:red;color:white;padding:20px;z-index:99999;font-family:monospace;font-size:14px;';
-            errorDiv.innerHTML = `<strong>Ошибка:</strong> ${e.message}<br><small>${e.filename}:${e.lineno}</small>`;
-            document.body.appendChild(errorDiv);
-            setTimeout(() => errorDiv.remove(), 10000);
+<script>
+    /**
+     * Управление проектами
+     */
+    class ProjectManager {
+        constructor() {
+            this.rootPath = this.getRootPath();
+            this.currentProject = null;
+            this.projects = [];
+
+            this.init();
+        }
+
+        getRootPath() {
+            const pathname = window.location.pathname;
+            const basePath = pathname.substring(0, pathname.lastIndexOf('/'));
+            return window.location.origin + basePath;
+        }
+
+        init() {
+            this.renderProjectSelect();
+            this.bindEvents();
+            this.loadProjects();
+
+            // Определяем проект из URL
+            const params = new URLSearchParams(window.location.search);
+            const projectParam = params.get('project_name');
+            if (projectParam) {
+                this.selectProject(projectParam);
+            }
+        }
+
+        renderProjectSelect() {
+            const select = document.getElementById('projectSelect');
+            if (!select) return;
+
+            // Сохраняем выбранное значение
+            const currentValue = select.value;
+
+            select.innerHTML = '<option value="">-- Выберите проект --</option>';
+
+            this.projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project;
+                option.textContent = project;
+                select.appendChild(option);
+            });
+
+            if (currentValue && this.projects.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        bindEvents() {
+            const select = document.getElementById('projectSelect');
+            const createBtn = document.getElementById('createProjectBtn');
+            const refreshBtn = document.getElementById('refreshProjectsBtn');
+
+            if (select) {
+                select.addEventListener('change', () => {
+                    const project = select.value;
+                    if (project) {
+                        this.selectProject(project);
+                    } else {
+                        this.clearProject();
+                    }
+                });
+            }
+
+            if (createBtn) {
+                createBtn.addEventListener('click', () => {
+                    this.showCreateProjectDialog();
+                });
+            }
+
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    this.loadProjects();
+                });
+            }
+        }
+
+        async loadProjects() {
+            try {
+                const response = await fetch(this.rootPath + '/php/projects_list.php');
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки списка проектов');
+                }
+                const data = await response.json();
+
+                if (data.success) {
+                    this.projects = data.projects || [];
+                    this.renderProjectSelect();
+
+                    // Обновляем информацию
+                    const badge = document.getElementById('projectInfoBadge');
+                    if (badge) {
+                        const count = this.projects.length;
+                        badge.textContent = `Всего проектов: ${count}`;
+                        badge.style.background = count > 0 ? '#4CAF50' : '#ff9800';
+                    }
+
+                    // Если есть текущий проект, проверяем его наличие
+                    if (this.currentProject && !this.projects.includes(this.currentProject)) {
+                        this.clearProject();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                const badge = document.getElementById('projectInfoBadge');
+                if (badge) {
+                    badge.textContent = '❌ Ошибка загрузки';
+                    badge.style.background = '#dc3545';
+                }
+            }
+        }
+
+        selectProject(projectName) {
+            this.currentProject = projectName;
+
+            // Обновляем select
+            const select = document.getElementById('projectSelect');
+            if (select) {
+                select.value = projectName;
+            }
+
+            // Обновляем badge
+            const badge = document.getElementById('projectInfoBadge');
+            if (badge) {
+                badge.textContent = `Проект: ${projectName}`;
+                badge.style.background = '#4CAF50';
+            }
+
+            // Обновляем UploadManager
+            if (window.uploadManager) {
+                window.uploadManager.setProject(projectName);
+            }
+
+            // Обновляем path поля
+            this.updatePathFields(projectName);
+
+            // Обновляем URL параметры
+            this.updateUrlParams(projectName);
+
+            // Загружаем список файлов проекта
+            if (window.uploadManager) {
+                window.uploadManager.loadFileList();
+            }
+
+            console.log('Project selected:', projectName);
+        }
+
+        clearProject() {
+            this.currentProject = null;
+
+            const select = document.getElementById('projectSelect');
+            if (select) {
+                select.value = '';
+            }
+
+            const badge = document.getElementById('projectInfoBadge');
+            if (badge) {
+                badge.textContent = 'Проект: не выбран';
+                badge.style.background = '#ff9800';
+            }
+
+            if (window.uploadManager) {
+                window.uploadManager.setProject(null);
+            }
+        }
+
+        updatePathFields(projectName) {
+            const pathInput = document.getElementById('pathInput');
+            const photoInput = document.getElementById('photoInput');
+            const fullUrlDisplay = document.getElementById('fullUrlDisplay');
+
+            // Получаем basePath из URL
+            const params = new URLSearchParams(window.location.search);
+            const basePath = params.get('path') || this.rootPath;
+
+            if (pathInput) {
+                pathInput.value = basePath + '/img';
+            }
+
+            if (photoInput) {
+                // Сохраняем имя файла если есть
+                const currentPhoto = photoInput.value;
+                if (currentPhoto && !currentPhoto.includes('/')) {
+                    // Если только имя файла - добавляем путь проекта
+                    photoInput.value = '/' + projectName + '/' + currentPhoto;
+                } else if (currentPhoto) {
+                    // Заменяем имя проекта в пути
+                    const parts = currentPhoto.split('/');
+                    const filename = parts[parts.length - 1];
+                    photoInput.value = '/' + projectName + '/' + filename;
+                } else {
+                    photoInput.value = '/' + projectName + '/';
+                }
+            }
+
+            if (fullUrlDisplay) {
+                const path = pathInput ? pathInput.value : '';
+                const photo = photoInput ? photoInput.value : '';
+                fullUrlDisplay.value = path + photo;
+            }
+        }
+
+        updateUrlParams(projectName) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('project_name', projectName);
+            window.history.pushState({}, '', url);
+        }
+
+        async showCreateProjectDialog() {
+            const projectName = prompt('Введите имя нового проекта:');
+            if (!projectName || projectName.trim() === '') return;
+
+            const cleanName = projectName.trim().replace(/[^a-zA-Z0-9_\-]/g, '_');
+            if (cleanName !== projectName.trim()) {
+                if (!confirm(`Имя проекта будет изменено на: "${cleanName}". Продолжить?`)) {
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(this.rootPath + '/php/projects_list.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'create',
+                        project: cleanName
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('✅ Проект "' + cleanName + '" создан успешно', 3000);
+                    await this.loadProjects();
+                    this.selectProject(cleanName);
+                } else {
+                    showToast('❌ Ошибка создания проекта: ' + (data.error || 'Неизвестная ошибка'), 5000);
+                }
+            } catch (error) {
+                console.error('Error creating project:', error);
+                showToast('❌ Ошибка создания проекта: ' + error.message, 5000);
+            }
+        }
+    }
+
+    // === ИНИЦИАЛИЗАЦИЯ ===
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Initializing Project Manager...');
+
+        // Создаем менеджер проектов
+        window.projectManager = new ProjectManager();
+
+        // Инициализация Upload Manager с поддержкой проектов
+        const container = document.querySelector('#uploadContainer');
+        if (container && !window.uploadManager) {
+            console.log('Initializing Upload Manager...');
+            try {
+                window.uploadManager = new UploadManager({
+                    container: '#uploadContainer'
+                });
+
+                // Если проект уже выбран - устанавливаем его
+                if (window.projectManager && window.projectManager.currentProject) {
+                    window.uploadManager.setProject(window.projectManager.currentProject);
+                }
+
+                console.log('Upload Manager initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize Upload Manager:', error);
+            }
+        }
+
+        // === ОБРАБОТКА ВЫБОРА ФАЙЛА ===
+        document.addEventListener('fileSelected', function(e) {
+            const file = e.detail;
+            console.log('File selected event:', file);
+
+            const pathInput = document.getElementById('pathInput');
+            const photoInput = document.getElementById('photoInput');
+            const fullUrlDisplay = document.getElementById('fullUrlDisplay');
+
+            // Получаем текущий проект
+            const projectName = window.projectManager ? window.projectManager.currentProject : null;
+
+            if (pathInput) {
+                // Если проект выбран - формируем путь
+                if (projectName) {
+                    const params = new URLSearchParams(window.location.search);
+                    const basePath = params.get('path') || window.projectManager?.rootPath || '';
+                    pathInput.value = basePath + '/img';
+                } else {
+                    pathInput.value = file.path || '';
+                }
+            }
+
+            if (photoInput && projectName) {
+                // Формируем правильный относительный путь: /project_name/filename
+                photoInput.value = '/' + projectName + '/' + file.name;
+            } else if (photoInput) {
+                photoInput.value = file.photo || file.name || '';
+            }
+
+            if (fullUrlDisplay) {
+                const path = pathInput ? pathInput.value : '';
+                const photo = photoInput ? photoInput.value : '';
+                fullUrlDisplay.value = path + photo;
+            }
+
+            // Обновляем предпросмотр
+            const previewContainer = document.getElementById('previewContainer');
+            if (previewContainer) {
+                previewContainer.style.display = 'block';
+            }
+
+            const previewButton = document.getElementById('previewButton');
+            if (previewButton && window.panoramaEditor) {
+                window.panoramaEditor.loadPreview();
+            }
         });
-
-        console.log('Page loaded');
-        console.log('URL:', window.location.href);
-        console.log('Search params:', new URLSearchParams(window.location.search).toString());
-    </script>
+    });
+</script>
 </body>
 </html>
